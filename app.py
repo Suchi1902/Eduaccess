@@ -1,9 +1,9 @@
 from flask import Flask, render_template
 from config import Config
 from models import db
+from forms import RegisterForm
 
 app = Flask(__name__)
-
 app.config.from_object(Config)
 
 db.init_app(app)
@@ -15,6 +15,12 @@ with app.app_context():
 @app.route("/")
 def home():
     return render_template("index.html")
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    form = RegisterForm()
+    return render_template("register.html", form=form)
 
 
 if __name__ == "__main__":
