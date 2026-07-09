@@ -1,1 +1,26 @@
+{% extends "base.html" %}
 
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    <h2>Welcome, {{ current_user.username }} 👋</h2>
+
+    <p>You are successfully logged in.</p>
+
+    <hr>
+
+    <h3>EduAccess Dashboard</h3>
+
+    <ul>
+        <li>📚 Browse Courses</li>
+        <li>➕ Add Courses (Coming Soon)</li>
+        <li>👤 My Profile</li>
+        <li><a href="{{ url_for('logout') }}">🚪 Logout</a></li>
+    </ul>
+
+</div>
+
+{% endblock %}
