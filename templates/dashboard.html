@@ -64,6 +64,14 @@
 <div class="card shadow mb-4">
 
 <div class="card-body">
+{% if course.image %}
+
+<img src="{{ url_for('static', filename='uploads/' + course.image) }}"
+     width="250"
+     height="150"
+     alt="Course Image">
+
+{% endif %}
 
 <h4>{{ course.title }}</h4>
 
