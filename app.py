@@ -77,6 +77,7 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
 
         if user and check_password_hash(user.password, form.password.data):
+
             login_user(user)
 
             flash("Login successful!", "success")
@@ -93,21 +94,33 @@ def login():
 def dashboard():
 
     search = request.args.get("search")
+    category = request.args.get("category")
+
+    query = Course.query.filter_by(created_by=current_user.id)
 
     if search:
-        courses = Course.query.filter(
-            Course.created_by == current_user.id,
-            Course.title.ilike(f"%{search}%")
-        ).all()
-    else:
-        courses = Course.query.filter_by(
-            created_by=current_user.id
-        ).all()
+        query = query.filter(Course.title.ilike(f"%{search}%"))
+
+    if category and category != "All":
+        query = query.filter(Course.category == category)
+
+    courses = query.all()
+
+    categories = (
+        db.session.query(Course.category)
+        .filter_by(created_by=current_user.id)
+        .distinct()
+        .all()
+    )
+
+    categories = [c[0] for c in categories]
 
     return render_template(
         "dashboard.html",
         courses=courses,
-        search=search
+        categories=categories,
+        search=search,
+        category=category
     )
 
 
@@ -144,10 +157,11 @@ def edit_course(course_id):
     course = Course.query.get_or_404(course_id)
 
     if course.created_by != current_user.id:
-        flash("You are not authorized to edit this course.", "danger")
+        flash("You are not authorized.", "danger")
         return redirect(url_for("dashboard"))
 
     form = CourseForm()
+
     form.submit.label.text = "Update Course"
 
     if form.validate_on_submit():
@@ -178,7 +192,7 @@ def delete_course(course_id):
     course = Course.query.get_or_404(course_id)
 
     if course.created_by != current_user.id:
-        flash("You are not authorized to delete this course.", "danger")
+        flash("You are not authorized.", "danger")
         return redirect(url_for("dashboard"))
 
     db.session.delete(course)
