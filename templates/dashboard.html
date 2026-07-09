@@ -4,50 +4,72 @@
 
 {% block content %}
 
-<div class="container">
+<h2>Welcome, {{ current_user.username }} 👋</h2>
 
-    <h2>Welcome, {{ current_user.username }} 👋</h2>
+<div class="card bg-primary text-white mt-3 mb-4">
 
-    <hr>
+    <div class="card-body">
 
-    <a href="{{ url_for('add_course') }}">
-        <button>Add Course</button>
-    </a>
+        <h4>Total Courses</h4>
 
-    <h3>My Courses</h3>
+        <h2>{{ courses|length }}</h2>
 
-    {% if courses %}
-
-        {% for course in courses %}
-
-            <div style="border:1px solid #ccc; padding:15px; margin:15px 0;">
-
-                <h3>{{ course.title }}</h3>
-
-                <p><strong>Category:</strong> {{ course.category }}</p>
-
-                <p>{{ course.description }}</p>
-
-                <a href="{{ course.link }}" target="_blank">
-                    Visit Course
-                </a>
-
-            </div>
-
-        {% endfor %}
-
-    {% else %}
-
-        <p>No courses added yet.</p>
-
-    {% endif %}
-
-    <br><br>
-
-    <a href="{{ url_for('logout') }}">
-        Logout
-    </a>
+    </div>
 
 </div>
+
+<a href="{{ url_for('add_course') }}" class="btn btn-success mb-4">
+    ➕ Add Course
+</a>
+
+<div class="row">
+
+{% for course in courses %}
+
+<div class="col-md-6">
+
+<div class="card mb-4 shadow">
+
+<div class="card-body">
+
+<h4>{{ course.title }}</h4>
+
+<p><strong>Category:</strong> {{ course.category }}</p>
+
+<p>{{ course.description }}</p>
+
+<a href="{{ course.link }}" target="_blank" class="btn btn-primary btn-sm">
+Visit
+</a>
+
+<a href="{{ url_for('edit_course', course_id=course.id) }}"
+class="btn btn-warning btn-sm">
+Edit
+</a>
+
+<a href="{{ url_for('delete_course', course_id=course.id) }}"
+class="btn btn-danger btn-sm">
+Delete
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+{% if courses|length == 0 %}
+
+<div class="alert alert-info">
+
+No courses available.
+
+</div>
+
+{% endif %}
 
 {% endblock %}

@@ -124,6 +124,55 @@ def add_course():
         return redirect(url_for("dashboard"))
 
     return render_template("add_course.html", form=form)
+@app.route("/edit-course/<int:course_id>", methods=["GET", "POST"])
+@login_required
+def edit_course(course_id):
+
+    course = Course.query.get_or_404(course_id)
+
+    if course.created_by != current_user.id:
+        flash("You are not authorized to edit this course.", "danger")
+        return redirect(url_for("dashboard"))
+
+    form = CourseForm()
+    form.submit.label.text = "Update Course"
+
+    if form.validate_on_submit():
+        course.title = form.title.data
+        course.category = form.category.data
+        course.description = form.description.data
+        course.link = form.link.data
+
+        db.session.commit()
+
+        flash("Course updated successfully!", "success")
+        return redirect(url_for("dashboard"))
+
+    # Pre-fill form with existing course details
+    form.title.data = course.title
+    form.category.data = course.category
+    form.description.data = course.description
+    form.link.data = course.link
+
+    return render_template("edit_course.html", form=form)
+
+
+@app.route("/delete-course/<int:course_id>")
+@login_required
+def delete_course(course_id):
+
+    course = Course.query.get_or_404(course_id)
+
+    if course.created_by != current_user.id:
+        flash("You are not authorized to delete this course.", "danger")
+        return redirect(url_for("dashboard"))
+
+    db.session.delete(course)
+    db.session.commit()
+
+    flash("Course deleted successfully!", "success")
+
+    return redirect(url_for("dashboard"))
 
 
 @app.route("/logout")
