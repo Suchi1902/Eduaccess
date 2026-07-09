@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, flash
+from flask import Flask, render_template, redirect, url_for, flash, request
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import (
     LoginManager,
@@ -92,11 +92,22 @@ def login():
 @login_required
 def dashboard():
 
-    courses = Course.query.filter_by(created_by=current_user.id).all()
+    search = request.args.get("search")
+
+    if search:
+        courses = Course.query.filter(
+            Course.created_by == current_user.id,
+            Course.title.ilike(f"%{search}%")
+        ).all()
+    else:
+        courses = Course.query.filter_by(
+            created_by=current_user.id
+        ).all()
 
     return render_template(
         "dashboard.html",
-        courses=courses
+        courses=courses,
+        search=search
     )
 
 
@@ -124,6 +135,8 @@ def add_course():
         return redirect(url_for("dashboard"))
 
     return render_template("add_course.html", form=form)
+
+
 @app.route("/edit-course/<int:course_id>", methods=["GET", "POST"])
 @login_required
 def edit_course(course_id):
@@ -138,6 +151,7 @@ def edit_course(course_id):
     form.submit.label.text = "Update Course"
 
     if form.validate_on_submit():
+
         course.title = form.title.data
         course.category = form.category.data
         course.description = form.description.data
@@ -146,9 +160,9 @@ def edit_course(course_id):
         db.session.commit()
 
         flash("Course updated successfully!", "success")
+
         return redirect(url_for("dashboard"))
 
-    # Pre-fill form with existing course details
     form.title.data = course.title
     form.category.data = course.category
     form.description.data = course.description

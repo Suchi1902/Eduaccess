@@ -7,16 +7,28 @@
 <h2>Welcome, {{ current_user.username }} 👋</h2>
 
 <div class="card bg-primary text-white mt-3 mb-4">
-
     <div class="card-body">
-
         <h4>Total Courses</h4>
-
         <h2>{{ courses|length }}</h2>
-
     </div>
-
 </div>
+
+<!-- Search Form -->
+<form method="GET" action="{{ url_for('dashboard') }}" class="mb-4">
+    <div class="input-group">
+        <input
+            type="text"
+            class="form-control"
+            name="search"
+            placeholder="Search courses..."
+            value="{{ search or '' }}"
+        >
+
+        <button class="btn btn-primary" type="submit">
+            🔍 Search
+        </button>
+    </div>
+</form>
 
 <a href="{{ url_for('add_course') }}" class="btn btn-success mb-4">
     ➕ Add Course
@@ -24,52 +36,62 @@
 
 <div class="row">
 
-{% for course in courses %}
+    {% if courses %}
 
-<div class="col-md-6">
+        {% for course in courses %}
 
-<div class="card mb-4 shadow">
+        <div class="col-md-6">
 
-<div class="card-body">
+            <div class="card mb-4 shadow">
 
-<h4>{{ course.title }}</h4>
+                <div class="card-body">
 
-<p><strong>Category:</strong> {{ course.category }}</p>
+                    <h4>{{ course.title }}</h4>
 
-<p>{{ course.description }}</p>
+                    <p>
+                        <strong>Category:</strong>
+                        {{ course.category }}
+                    </p>
 
-<a href="{{ course.link }}" target="_blank" class="btn btn-primary btn-sm">
-Visit
-</a>
+                    <p>{{ course.description }}</p>
 
-<a href="{{ url_for('edit_course', course_id=course.id) }}"
-class="btn btn-warning btn-sm">
-Edit
-</a>
+                    <a href="{{ course.link }}"
+                       target="_blank"
+                       class="btn btn-primary btn-sm">
+                        🔗 Visit
+                    </a>
 
-<a href="{{ url_for('delete_course', course_id=course.id) }}"
-class="btn btn-danger btn-sm">
-Delete
-</a>
+                    <a href="{{ url_for('edit_course', course_id=course.id) }}"
+                       class="btn btn-warning btn-sm">
+                        ✏️ Edit
+                    </a>
+
+                    <a href="{{ url_for('delete_course', course_id=course.id) }}"
+                       class="btn btn-danger btn-sm"
+                       onclick="return confirm('Are you sure you want to delete this course?')">
+                        🗑️ Delete
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div class="col-12">
+
+            <div class="alert alert-info">
+                No courses found.
+            </div>
+
+        </div>
+
+    {% endif %}
 
 </div>
-
-</div>
-
-</div>
-
-{% endfor %}
-
-</div>
-
-{% if courses|length == 0 %}
-
-<div class="alert alert-info">
-
-No courses available.
-
-</div>
-
-{% endif %}
 
 {% endblock %}
