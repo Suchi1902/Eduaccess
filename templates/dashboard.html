@@ -8,18 +8,45 @@
 
     <h2>Welcome, {{ current_user.username }} 👋</h2>
 
-    <p>You are successfully logged in.</p>
-
     <hr>
 
-    <h3>EduAccess Dashboard</h3>
+    <a href="{{ url_for('add_course') }}">
+        <button>Add Course</button>
+    </a>
 
-    <ul>
-        <li>📚 Browse Courses</li>
-        <li>➕ Add Courses (Coming Soon)</li>
-        <li>👤 My Profile</li>
-        <li><a href="{{ url_for('logout') }}">🚪 Logout</a></li>
-    </ul>
+    <h3>My Courses</h3>
+
+    {% if courses %}
+
+        {% for course in courses %}
+
+            <div style="border:1px solid #ccc; padding:15px; margin:15px 0;">
+
+                <h3>{{ course.title }}</h3>
+
+                <p><strong>Category:</strong> {{ course.category }}</p>
+
+                <p>{{ course.description }}</p>
+
+                <a href="{{ course.link }}" target="_blank">
+                    Visit Course
+                </a>
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <p>No courses added yet.</p>
+
+    {% endif %}
+
+    <br><br>
+
+    <a href="{{ url_for('logout') }}">
+        Logout
+    </a>
 
 </div>
 

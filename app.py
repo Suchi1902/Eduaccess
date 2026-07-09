@@ -5,20 +5,18 @@ from flask_login import (
     login_user,
     logout_user,
     login_required,
-    current_user,
+    current_user
 )
 
 from config import Config
-from models import db, User
-from forms import RegisterForm, LoginForm
+from models import db, User, Course
+from forms import RegisterForm, LoginForm, CourseForm
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
-# Initialize database
 db.init_app(app)
 
-# Initialize Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
@@ -29,20 +27,18 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-# Create database tables
 with app.app_context():
     db.create_all()
 
 
-# Home Page
 @app.route("/")
 def home():
     return render_template("index.html")
 
 
-# Register
 @app.route("/register", methods=["GET", "POST"])
 def register():
+
     form = RegisterForm()
 
     if form.validate_on_submit():
@@ -65,14 +61,15 @@ def register():
         db.session.commit()
 
         flash("Registration successful! Please login.", "success")
+
         return redirect(url_for("login"))
 
     return render_template("register.html", form=form)
 
 
-# Login
 @app.route("/login", methods=["GET", "POST"])
 def login():
+
     form = LoginForm()
 
     if form.validate_on_submit():
@@ -81,7 +78,9 @@ def login():
 
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
+
             flash("Login successful!", "success")
+
             return redirect(url_for("dashboard"))
 
         flash("Invalid email or password!", "danger")
@@ -89,19 +88,52 @@ def login():
     return render_template("login.html", form=form)
 
 
-# Dashboard
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    return render_template("dashboard.html")
+
+    courses = Course.query.filter_by(created_by=current_user.id).all()
+
+    return render_template(
+        "dashboard.html",
+        courses=courses
+    )
 
 
-# Logout
+@app.route("/add-course", methods=["GET", "POST"])
+@login_required
+def add_course():
+
+    form = CourseForm()
+
+    if form.validate_on_submit():
+
+        course = Course(
+            title=form.title.data,
+            category=form.category.data,
+            description=form.description.data,
+            link=form.link.data,
+            created_by=current_user.id
+        )
+
+        db.session.add(course)
+        db.session.commit()
+
+        flash("Course added successfully!", "success")
+
+        return redirect(url_for("dashboard"))
+
+    return render_template("add_course.html", form=form)
+
+
 @app.route("/logout")
 @login_required
 def logout():
+
     logout_user()
-    flash("You have been logged out.", "success")
+
+    flash("Logged out successfully.", "success")
+
     return redirect(url_for("home"))
 
 

@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Email, Length
 
 
@@ -34,3 +34,27 @@ class LoginForm(FlaskForm):
     )
 
     submit = SubmitField("Login")
+
+
+class CourseForm(FlaskForm):
+    title = StringField(
+        "Course Title",
+        validators=[DataRequired()]
+    )
+
+    category = StringField(
+        "Category",
+        validators=[DataRequired()]
+    )
+
+    description = TextAreaField(
+        "Description",
+        validators=[DataRequired()]
+    )
+
+    link = StringField(
+        "Course Link",
+        validators=[DataRequired()]
+    )
+
+    submit = SubmitField("Add Course")
