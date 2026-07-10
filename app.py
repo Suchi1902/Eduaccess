@@ -14,7 +14,13 @@ from flask_login import (
 
 from config import Config
 from models import db, User, Course
-from forms import RegisterForm, LoginForm, CourseForm
+from forms import (
+    RegisterForm,
+    LoginForm,
+    CourseForm,
+    UpdateProfileForm,
+    ChangePasswordForm
+)
 
 
 app = Flask(__name__)
@@ -455,6 +461,74 @@ def delete_course(course_id):
     return redirect(
         url_for("dashboard")
     )
+@app.route("/profile")
+@login_required
+def profile():
+
+    course_count = Course.query.filter_by(
+        created_by=current_user.id
+    ).count()
+
+
+    return render_template(
+        "profile.html",
+        user=current_user,
+        course_count=course_count
+    )
+@app.route("/edit-profile", methods=["GET", "POST"])
+@login_required
+def edit_profile():
+
+    form = UpdateProfileForm()
+
+    if form.validate_on_submit():
+
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+
+        db.session.commit()
+
+        flash("Profile updated successfully!", "success")
+
+        return redirect(url_for("profile"))
+
+    form.username.data = current_user.username
+    form.email.data = current_user.email
+
+    return render_template(
+        "edit_profile.html",
+        form=form
+    )
+
+@app.route("/change-password", methods=["GET", "POST"])
+@login_required
+def change_password():
+
+    form = ChangePasswordForm()
+
+    if form.validate_on_submit():
+
+        if not check_password_hash(
+            current_user.password,
+            form.current_password.data
+        ):
+            flash("Current password is incorrect!", "danger")
+            return redirect(url_for("change_password"))
+
+        current_user.password = generate_password_hash(
+            form.new_password.data
+        )
+
+        db.session.commit()
+
+        flash("Password changed successfully!", "success")
+
+        return redirect(url_for("profile"))
+
+    return render_template(
+        "change_password.html",
+        form=form
+    )    
 
 
 

@@ -7,7 +7,12 @@ from wtforms import (
     SubmitField
 )
 
-from wtforms.validators import DataRequired, Email
+from wtforms.validators import (
+    DataRequired,
+    Email,
+    Length,
+    EqualTo
+)
 
 from flask_wtf.file import FileField
 
@@ -29,11 +34,14 @@ class RegisterForm(FlaskForm):
         ]
     )
 
-
     password = PasswordField(
         "Password",
-        validators=[DataRequired()]
-    )
+        validators=[
+            DataRequired(),
+        Length(min=6)
+    ]
+)
+    
 
 
     submit = SubmitField(
@@ -102,3 +110,43 @@ class CourseForm(FlaskForm):
     submit = SubmitField(
         "Add Course"
     )
+class UpdateProfileForm(FlaskForm):
+
+    username = StringField(
+        "Username",
+        validators=[DataRequired()]
+    )
+
+    email = StringField(
+        "Email",
+        validators=[
+            DataRequired(),
+            Email()
+        ]
+    )
+
+    submit = SubmitField("Update Profile")  
+class ChangePasswordForm(FlaskForm):
+
+    current_password = PasswordField(
+        "Current Password",
+        validators=[DataRequired()]
+    )
+
+    new_password = PasswordField(
+        "New Password",
+        validators=[
+            DataRequired(),
+            Length(min=6)
+        ]
+    )
+
+    confirm_password = PasswordField(
+        "Confirm New Password",
+        validators=[
+            DataRequired(),
+            EqualTo("new_password")
+        ]
+    )
+
+    submit = SubmitField("Change Password")      
