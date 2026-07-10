@@ -13,7 +13,7 @@ from flask_login import (
 )
 
 from config import Config
-from models import db, User, Course
+from models import db, User, Course,Favorite
 from forms import (
     RegisterForm,
     LoginForm,
